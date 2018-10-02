@@ -58,6 +58,8 @@ private:
 
     Affinity affinity;
 
+    std::string threadName;
+
 public:
 
     HandleHolder cancelEvent;

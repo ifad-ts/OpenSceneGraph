@@ -590,7 +590,7 @@ void GraphicsContext::createGraphicsThread()
     if (!_graphicsThread)
     {
         setGraphicsThread(new GraphicsThread);
-
+        _graphicsThread->setThreadName("osg::GraphicsThread");
         if (_traits.valid())
         {
             _graphicsThread->setProcessorAffinity(_traits->affinity);
