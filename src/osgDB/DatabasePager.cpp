@@ -1183,7 +1183,9 @@ DatabasePager::DatabasePager(const DatabasePager& rhs)
         dt_itr != rhs._databaseThreads.end();
         ++dt_itr)
     {
-        _databaseThreads.push_back(new DatabaseThread(**dt_itr,this));
+        DatabaseThread* thread = new DatabaseThread(**dt_itr, this);
+        thread->setThreadName("osg::DatabaseThread " + (*dt_itr)->getName());
+        _databaseThreads.push_back(thread);
     }
 
     setProcessorAffinity(rhs.getProcessorAffinity());
@@ -1293,7 +1295,7 @@ unsigned int DatabasePager::addDatabaseThread(DatabaseThread::Mode mode, const s
     unsigned int pos = _databaseThreads.size();
 
     DatabaseThread* thread = new DatabaseThread(this, mode,name);
-
+    thread->setThreadName("osg::DatabaseThread " + name);
     thread->setProcessorAffinity(_affinity);
 
     _databaseThreads.push_back(thread);

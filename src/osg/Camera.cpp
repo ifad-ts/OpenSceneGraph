@@ -534,6 +534,7 @@ void Camera::createCameraThread()
     if (!_cameraThread)
     {
         setCameraThread(new OperationThread);
+        _cameraThread->setThreadName("osg::CameraThread");
     }
 }
 
