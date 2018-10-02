@@ -39,6 +39,34 @@ struct Win32ThreadCanceled{};
 
 using namespace OpenThreads;
 
+const DWORD MS_VC_EXCEPTION = 0x406D1388;
+
+#pragma pack(push, 8)
+typedef struct tagTHREADNAME_INFO
+{
+   DWORD dwType;  // Must be 0x1000
+   LPCSTR szName;  // Pointer to name (in user addr space)
+   DWORD dwThreadId; // Thread ID (-1=caller thread)
+   DWORD dwFlags; // Reserved for future use.  Must be zero
+} THREADNAME_INFO;
+#pragma pack(pop)
+
+void SetThreadName(DWORD dwThreadId, const char *threadName)
+{
+   THREADNAME_INFO info;
+   info.dwType = 0x1000;
+   info.szName = threadName;
+   info.dwThreadId = dwThreadId;
+   info.dwFlags = 0;
+
+   __try {
+      RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR*)&info);
+   }
+   __except (EXCEPTION_EXECUTE_HANDLER)
+   {
+   }
+}
+
 DWORD OpenThreads::cooperativeWait(HANDLE waitHandle, unsigned long timeout){
     Thread* current = Thread::CurrentThread();
     DWORD dwResult ;
@@ -356,6 +384,12 @@ int Thread::start() {
     // wait till the thread has actually started.
     pd->threadStartedBlock.block();
 
+    if (pd->threadName.empty()) {
+       SetThreadName(pd->uniqueId, "osg::Thread");
+    }
+    else {
+       SetThreadName(pd->uniqueId, pd->threadName.c_str());
+    }
     return 0;
 
 }
@@ -504,6 +538,11 @@ int Thread::setSchedulePriority(ThreadPriority priority) {
         return 0;
 }
 
+void Thread::setThreadName(const std::string &name) 
+{ 
+   Win32ThreadPrivateData *pd = static_cast<Win32ThreadPrivateData *> (_prvData);
+   pd->threadName = name;
+}
 
 //-----------------------------------------------------------------------------
 //
