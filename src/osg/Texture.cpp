@@ -1007,9 +1007,10 @@ bool Texture::TextureObjectManager::checkConsistency() const
     return true;
 }
 
-
+static OpenThreads::Mutex s_textureObjectManagerMutex;
 osg::ref_ptr<Texture::TextureObjectManager>& Texture::getTextureObjectManager(unsigned int contextID)
 {
+    OpenThreads::ScopedLock<OpenThreads::Mutex> lock(s_textureObjectManagerMutex);
     typedef osg::buffered_object< ref_ptr<Texture::TextureObjectManager> > TextureObjectManagerBuffer;
     static TextureObjectManagerBuffer s_TextureObjectManager;
     if (!s_TextureObjectManager[contextID]) s_TextureObjectManager[contextID] = new Texture::TextureObjectManager(contextID);

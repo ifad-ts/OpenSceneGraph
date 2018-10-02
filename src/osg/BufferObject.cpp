@@ -1227,9 +1227,10 @@ void GLBufferObjectManager::recomputeStats(std::ostream& out)
     out<<"   getMaxGLBufferObjectPoolSize()="<<getMaxGLBufferObjectPoolSize()<<" current/max size = "<<double(currentSize)/double(getMaxGLBufferObjectPoolSize())<<std::endl;
 }
 
-
+static OpenThreads::Mutex s_glBufferObjectManagerMutex;
 osg::ref_ptr<GLBufferObjectManager>& GLBufferObjectManager::getGLBufferObjectManager(unsigned int contextID)
 {
+    OpenThreads::ScopedLock<OpenThreads::Mutex> lock(s_glBufferObjectManagerMutex);
     typedef osg::buffered_object< ref_ptr<GLBufferObjectManager> > GLBufferObjectManagerBuffer;
     static GLBufferObjectManagerBuffer s_GLBufferObjectManager;
     if (!s_GLBufferObjectManager[contextID]) s_GLBufferObjectManager[contextID] = new GLBufferObjectManager(contextID);
