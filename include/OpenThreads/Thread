@@ -23,6 +23,7 @@
 #include <sys/types.h>
 
 #include <OpenThreads/Mutex>
+#include <string>
 
 namespace OpenThreads {
 
@@ -209,6 +210,8 @@ public:
      *  @return 0 if normal, -1 if errno set, errno code otherwise.
      */
     int setSchedulePriority(ThreadPriority priority);
+
+    void setThreadName(const std::string &name);
 
     /**
      *  Get the thread's schedule priority (if able)

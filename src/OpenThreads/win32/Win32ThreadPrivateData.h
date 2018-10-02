@@ -58,6 +58,8 @@ private:
 
     int cpunum;
 
+    std::string threadName;
+
 public:
 
     HandleHolder cancelEvent;

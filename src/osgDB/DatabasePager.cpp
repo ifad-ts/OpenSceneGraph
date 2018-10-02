@@ -1115,7 +1115,9 @@ DatabasePager::DatabasePager(const DatabasePager& rhs)
         dt_itr != rhs._databaseThreads.end();
         ++dt_itr)
     {
-        _databaseThreads.push_back(new DatabaseThread(**dt_itr,this));
+        DatabaseThread* thread = new DatabaseThread(**dt_itr, this);
+        thread->setThreadName("osg::DatabaseThread " + (*dt_itr)->getName());
+        _databaseThreads.push_back(thread);
     }
 
     _activePagedLODList = rhs._activePagedLODList->clone();
@@ -1208,6 +1210,7 @@ unsigned int DatabasePager::addDatabaseThread(DatabaseThread::Mode mode, const s
     unsigned int pos = _databaseThreads.size();
 
     DatabaseThread* thread = new DatabaseThread(this, mode,name);
+    thread->setThreadName("osg::DatabaseThread " + name);
     _databaseThreads.push_back(thread);
 
     if (_startThreadCalled)
