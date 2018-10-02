@@ -835,7 +835,7 @@ void DatabasePager::DatabaseThread::run()
 
 
             // check if databaseRequest is still relevant
-            if ((_pager->_frameNumber-frameNumberLastRequest)<=1)
+            if ((_pager->_frameNumber-frameNumberLastRequest) <= _pager->_frameIntervalToleranceLastRequest)
             {
 
                 // now check to see if this request is appropriate for this thread
@@ -924,7 +924,7 @@ void DatabasePager::DatabaseThread::run()
 
             {
                 OpenThreads::ScopedLock<OpenThreads::Mutex> drLock(_pager->_dr_mutex);
-                if ((_pager->_frameNumber-databaseRequest->_frameNumberLastRequest)>1)
+                if ((_pager->_frameNumber - databaseRequest->_frameNumberLastRequest) > _pager->_frameIntervalToleranceLastRequest)
                 {
                     OSG_INFO<<_name<<": Warning DatabaseRquest no longer required."<<std::endl;
                     loadedModel = 0;
@@ -1090,7 +1090,13 @@ DatabasePager::DatabasePager()
         OSG_NOTICE<<"_targetMaximumNumberOfPageLOD = "<<_targetMaximumNumberOfPageLOD<<std::endl;
     }
 
-
+    _frameIntervalToleranceLastRequest = 1;
+    if ((str = getenv("OSG_FRAME_TOLERANCE_LAST_REQUEST")) != 0)
+    {
+        _frameIntervalToleranceLastRequest = atoi(str);
+        OSG_NOTICE << "_frameIntervalToleranceLastRequest = " << _frameIntervalToleranceLastRequest << std::endl;
+    }
+    
     _doPreCompile = true;
     if( (str = getenv("OSG_DO_PRE_COMPILE")) != 0)
     {
@@ -1170,6 +1176,8 @@ DatabasePager::DatabasePager(const DatabasePager& rhs)
     _deleteRemovedSubgraphsInDatabaseThread = rhs._deleteRemovedSubgraphsInDatabaseThread;
 
     _targetMaximumNumberOfPageLOD = rhs._targetMaximumNumberOfPageLOD;
+    
+    _frameIntervalToleranceLastRequest = rhs._frameIntervalToleranceLastRequest;
 
     _doPreCompile = rhs._doPreCompile;
 
@@ -1532,7 +1540,6 @@ void DatabasePager::requestNodeFile(const std::string& fileName, osg::NodePath& 
             databaseRequest->_group = group;
             databaseRequest->_terrain = terrain;
             databaseRequest->_loadOptions = loadOptions;
-            databaseRequest->_objectCache = 0;
 
             _fileRequestQueue->addNoLock(databaseRequest.get());
         }
@@ -1825,7 +1832,7 @@ void DatabasePager::removeExpiredSubgraphs(const osg::FrameStamp& frameStamp)
     s_total_time_stage_b += time_b;
     if (s_total_max_stage_b<time_b) s_total_max_stage_b = time_b;
 
-    //OSG_NOTICE<<" childrenRemoved.size()="<<childrenRemoved.size()<<std::endl;
+    OSG_INFO<<"DatabasePager::removeExpiredSubgraphs(): childrenRemoved.size()="<<childrenRemoved.size()<<std::endl;
 
     if (!childrenRemoved.empty())
     {
