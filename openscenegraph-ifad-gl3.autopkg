@@ -1,0 +1,47 @@
+/* Use createnugetpackages.bat to perform all stages required to build this package. */
+
+nuget {
+    nuspec {
+        id = openscenegraph-ifad-gl3;
+        version: 3.5.1.4;
+        title: OpenSceneGraph IFAD GL3;
+        authors: { Robert Osfield amo. };
+        owners: { IFAD TS, Michael Bach };
+        licenseUrl: "http://www.openscenegraph.com/index.php/about/licensing";
+        projectUrl: "http://www.openscenegraph.com/";
+        requireLicenseAcceptance: false;
+        summary: GL3 build of OpenSceneGraph. The OpenSceneGraph is an open source high performance 3D graphics toolkit.;
+        description: @"The OpenSceneGraph is an open source high performance 3D graphics toolkit, used by
+        application developers in fields such as visual simulation, games, virtual reality, scientific
+        visualization and modelling. Written entirely in Standard C++ and OpenGL it runs on all Windows platforms,
+        OSX, GNU/Linux, IRIX, Solaris, HP-Ux, AIX and FreeBSD operating systems. The OpenSceneGraph is now well
+        established as the world leading scene graph technology, used widely in the vis-sim, space, scientific,
+        oil-gas, games and virtual reality industries.";
+        copyright: "None";
+        tags: { test, native, ifadts };
+        releaseNotes: "First nupkg release.";
+    }
+    
+    dependencies {
+        packages : {
+            osgvisual-3rdparty-full/9.0,
+        };
+    }
+
+    files {
+        include: { "target\nugetinstall\Debug\include\**\*" };
+        symbols += {  
+            #add-each-file : ::nuget.[symbols]targets.[${condition}].CopyToOutput;
+        };
+        [x64,v120,debug,dynamic] {
+            lib:     target\nugetinstall\Debug\lib\*;
+            bin:     { target\nugetinstall\Debug\bin\**\*.dll, target\nugetinstall\Debug\bin\**\*.exe };
+            symbols: target\nugetinstall\Debug\bin\**\*.pdb;
+        }
+        [x64,v120,release,dynamic] {
+            lib:     target\nugetinstall\Release\lib\*;
+            bin:     { target\nugetinstall\Release\bin\**\*.dll, target\nugetinstall\Release\bin\**\*.exe};
+            symbols: target\nugetinstall\Release\bin\**\*.pdb;
+        }
+    }
+}
