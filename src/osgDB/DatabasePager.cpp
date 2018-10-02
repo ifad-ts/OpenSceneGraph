@@ -1811,7 +1811,7 @@ void DatabasePager::removeExpiredSubgraphs(const osg::FrameStamp& frameStamp)
     ObjectList childrenRemoved;
 
     double expiryTime = frameStamp.getReferenceTime() - 0.1;
-    unsigned int expiryFrame = frameStamp.getFrameNumber() - 1;
+	unsigned int expiryFrame = frameStamp.getFrameNumber() - _frameIntervalToleranceLastRequest;
 
     // First traverse inactive PagedLODs, as their children will
     // certainly have expired. Then traverse active nodes if we still
