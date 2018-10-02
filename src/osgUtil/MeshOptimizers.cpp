@@ -25,6 +25,7 @@
 #include <osg/PrimitiveSet>
 #include <osg/TriangleIndexFunctor>
 #include <osg/TriangleLinePointIndexFunctor>
+#include <osg/KdTree>
 
 #include <osgUtil/MeshOptimizers>
 
@@ -385,6 +386,13 @@ void IndexMeshVisitor::makeMesh(Geometry& geom)
         new_primitives.push_back(elements);
     }
     geom.setPrimitiveSetList(new_primitives);
+
+    if(geom.getShape()) // check for existing kdtree,
+    {
+        osg::KdTree* tree = dynamic_cast<osg::KdTree*>(geom.getShape());
+        if(tree) // remove it since it's no longer valid
+            geom.setShape(NULL);
+    }
 }
 
 void IndexMeshVisitor::makeMesh()
