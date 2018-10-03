@@ -96,3 +96,4 @@ _CPack_Packages/
 target/
 *.nupkg
 *.nuspec
+packages/
