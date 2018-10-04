@@ -3,7 +3,7 @@
 nuget {
     nuspec {
         id = OpenSceneGraphIFAD;
-        version: 3.2.1.4;
+        version: 3.6.3.1;
         title: OpenSceneGraph IFAD;
         authors: { Robert Osfield amo. };
         owners: { IFAD TS, Michael Bach };
@@ -24,7 +24,7 @@ nuget {
     
     dependencies {
         packages : {
-            osgvisual-3rdparty-full/9.0,
+            osgvisual-3rdparty-full/10.0.1,
         };
     }
 
