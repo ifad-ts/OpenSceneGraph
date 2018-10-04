@@ -4,16 +4,17 @@ rem Also requires a Nuget feed containing the dependent packages (most easily se
 rem as that setup is picked up by the command-line nuget.exe)
 
 rem get dependencies
-nuget install -OutputDirectory packages osgvisual-3rdparty-full
+set OSGVISUALVER=10.0.1
+nuget install -OutputDirectory packages -Version %OSGVISUALVER% osgvisual-3rdparty-full
 
 rem re-construct osgvisual-3rdparty structure so that the OpenSceneGraph 3rdparty location scripts can detect the files
 set OSGVISUALTEMP=packages\osgvisual-3rdparty-temp\x64
 rem rmdir /s /q %OSGVISUALTEMP%
 rem mkdir %OSGVISUALTEMP%
-robocopy /s /NFL /NDL packages\osgvisual-3rdparty-full.9.0\build\native\include %OSGVISUALTEMP%\include
+robocopy /s /NFL /NDL packages\osgvisual-3rdparty-full.%OSGVISUALVER%\build\native\include %OSGVISUALTEMP%\include
 rem mkdir %OSGVISUALTEMP%\lib
-robocopy /NFL packages\osgvisual-3rdparty-full.9.0\build\native\lib\x64\v120\Debug\Desktop %OSGVISUALTEMP%\lib\
-robocopy /NFL packages\osgvisual-3rdparty-full.9.0\build\native\lib\x64\v120\Release\Desktop %OSGVISUALTEMP%\lib\
+robocopy /NFL packages\osgvisual-3rdparty-full.%OSGVISUALVER%\build\native\lib\x64\v120\Debug\Desktop %OSGVISUALTEMP%\lib\
+robocopy /NFL packages\osgvisual-3rdparty-full.%OSGVISUALVER%\build\native\lib\x64\v120\Release\Desktop %OSGVISUALTEMP%\lib\
 
 rem build OpenSceneGraph debug and release
 call nugetbuild.bat debug
