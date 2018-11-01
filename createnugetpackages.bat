@@ -4,7 +4,7 @@ rem Also requires a Nuget feed containing the dependent packages (most easily se
 rem as that setup is picked up by the command-line nuget.exe)
 
 rem get dependencies
-set OSGVISUALVER=10.0.1
+set OSGVISUALVER=10.0.2
 nuget install -OutputDirectory packages -Version %OSGVISUALVER% osgvisual-3rdparty-full
 
 rem re-construct osgvisual-3rdparty structure so that the OpenSceneGraph 3rdparty location scripts can detect the files
