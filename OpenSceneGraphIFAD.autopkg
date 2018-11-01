@@ -3,7 +3,7 @@
 nuget {
     nuspec {
         id = OpenSceneGraphIFAD;
-        version: 3.6.3.1;
+        version: 3.6.3.2;
         title: OpenSceneGraph IFAD;
         authors: { Robert Osfield amo. };
         owners: { IFAD TS, Michael Bach };
@@ -19,12 +19,12 @@ nuget {
         oil-gas, games and virtual reality industries.";
         copyright: "None";
         tags: { test, native, ifadts };
-        releaseNotes: "First nupkg release.";
+        releaseNotes: "Updated osgvisual-3rdparty-full to version 10.0.2 to get the missing release dll's into the debug folder.";
     }
     
     dependencies {
         packages : {
-            osgvisual-3rdparty-full/10.0.1,
+            osgvisual-3rdparty-full/10.0.2,
         };
     }
 
