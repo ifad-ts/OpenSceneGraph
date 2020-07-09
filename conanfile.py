@@ -23,11 +23,6 @@ class OpenSceneGraphConan(ConanFile):
     short_paths = True  # for win<10 naming
     exports_sources = "applications/*", "CMakeModules/*", "doc/*", "include/*", "packaging/*", "PlatformSpecifics/*", "src/*", "*.txt" # export the source code with the recipe
 
-    def configure(self):
-        # it is necessary to remove the VS runtime when packaging multiple build types into a single package
-        if self.settings.compiler == "Visual Studio":
-            del self.settings.compiler.runtime
-
     def system_requirements(self):
         self.output.warn("system_requirements: ")
         pack_name = None
