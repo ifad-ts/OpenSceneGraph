@@ -8,7 +8,7 @@ class DefaultNameConan(ConanFile):
     version = "0.1"
     settings = "os", "compiler", "arch", "build_type"
     generators = "cmake"
-    def requirements(self):  self.requires("openscenegraph-ifad/3.6.3.1@ifad/stable")
+    def requirements(self):  self.requires("openscenegraph-ifad/3.6.3.2@ifad/stable")
     def build(self):
         cmake = CMake(self)
         cmake.verbose = True

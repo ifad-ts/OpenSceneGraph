@@ -9,7 +9,7 @@ from conans.tools import os_info, SystemPackageTool
 
 class OpenSceneGraphConan(ConanFile):
     name = "openscenegraph-ifad"
-    version = "3.6.3.1"
+    version = "3.6.3.2"
     license = "http://www.openscenegraph.org/images/LICENSE.txt"
     url = "https://github.com/ifad-ts/OpenSceneGraph"
     description = "IFAD version of OpenSceneGraph. The OpenSceneGraph is an open source high performance 3D graphics toolkit, used by application developers in fields such as visual simulation, games, virtual reality, scientific visualization and modelling. Written entirely in Standard C++ and OpenGL it runs on all Windows platforms, OSX, GNU/Linux, IRIX, Solaris, HP-Ux, AIX and FreeBSD operating systems. The OpenSceneGraph is now well established as the world leading scene graph technology, used widely in the vis-sim, space, scientific, oil-gas, games and virtual reality industries."
