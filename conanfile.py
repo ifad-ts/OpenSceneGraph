@@ -1,93 +1,110 @@
 from conans import ConanFile, CMake, tools
-from pathlib import Path
-from glob import glob
 import os
-import subprocess
-
-from conans.tools import os_info, SystemPackageTool
 
 
-class OpenSceneGraphConan(ConanFile):
+class OpenscenegraphConan(ConanFile):
     name = "openscenegraph-ifad"
-    version = "3.6.3.2"
-    license = "http://www.openscenegraph.org/images/LICENSE.txt"
+    version = "3.6.3.3"
+    description = "IFAD version of OpenSceneGraph. OpenSceneGraph is an open source high performance 3D graphics toolkit"
+    topics = ("ifad", "conan", "openscenegraph", "graphics")
     url = "https://github.com/ifad-ts/OpenSceneGraph"
-    description = "IFAD version of OpenSceneGraph. The OpenSceneGraph is an open source high performance 3D graphics toolkit, used by application developers in fields such as visual simulation, games, virtual reality, scientific visualization and modelling. Written entirely in Standard C++ and OpenGL it runs on all Windows platforms, OSX, GNU/Linux, IRIX, Solaris, HP-Ux, AIX and FreeBSD operating systems. The OpenSceneGraph is now well established as the world leading scene graph technology, used widely in the vis-sim, space, scientific, oil-gas, games and virtual reality industries."
-    settings = "os", "compiler", "build_type", "arch"
-    requires = "osgvisual/11_full@ifad/stable"
-    options = {"pure_gl3": [True, False]}
-    default_options = "pure_gl3=False"
-    generators = "cmake"
-    copy_source_to_build_dir = False
-    build_policy = "missing"  # "always" #
-    short_paths = True  # for win<10 naming
+    homepage = "https://github.com/ifad-ts/OpenSceneGraph"
+    license = "MIT"
     exports_sources = "applications/*", "CMakeModules/*", "doc/*", "include/*", "packaging/*", "PlatformSpecifics/*", "src/*", "*.txt" # export the source code with the recipe
+    short_paths = True
+    generators = "cmake"
+    settings = "os", "arch", "compiler", "build_type"
+    options = {
+        "shared": [True, False],
+        "fPIC": [True, False],
+        "build_osg_applications": [True, False],
+        "build_osg_plugins_by_default": [True, False],
+        "build_osg_examples": [True, False],
+        "dynamic_openthreads": [True, False]
+    }
+    default_options = {
+        "shared": True,
+        "fPIC": True,
+        "build_osg_applications": False,
+        "build_osg_plugins_by_default": True,
+        "build_osg_examples": False,
+        "dynamic_openthreads": True,
+        "zlib:shared": True,
+        "freetype:shared": True,
+        "libjpeg:shared": True,
+        "libxml2:shared": True,
+        "libpng:shared": True,
+        "libtiff:shared": True
+    }
+    _build_subfolder = "build_subfolder"
+
+    requires = (
+        "zlib/1.2.11",
+        "freetype/2.10.2",
+        "libjpeg/9d",
+        "libxml2/2.9.10",
+        #"libcurl/7.72.0",
+        "libpng/1.6.37",
+        "libtiff/4.1.0",
+        #"sdl2/2.0.12@bincrafters/stable",
+        #"jasper/2.0.14",
+        #"cairo/1.17.2@bincrafters/stable",
+        # "openblas/0.3.10", Removed until openblas is in conan center
+    )
+
+    _cmake = None
+
+    def requirements(self):
+        if self.settings.os != "Windows":
+            self.requires("asio/1.13.0")
+        if self.settings.os == "Linux":
+            self.requires("xorg/system")
+        self.requires("opengl/system")
+        self.requires("glu/system")
 
     def system_requirements(self):
-        self.output.warn("system_requirements: ")
-        pack_name = None
-        if os_info.linux_distro == "ubuntu":
-            self.run('sudo apt-get build-dep openscenegraph', True)
-            # gstreamer seems missing after build-dep
-            pack_name = "libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libasio-dev libcollada-dom2.4-dp-dev libdcmtk-dev libfltk1.3-dev libnvtt-dev libboost-filesystem-dev"
-        elif os_info.linux_distro == "fedora" or os_info.linux_distro == "centos":
-            pack_name = "TODOpackage_names_in_fedora_and_centos"
-        elif os_info.is_macos:
-            pack_name = "TODOpackage_names_in_macos"
-        elif os_info.is_freebsd:
-            pack_name = "TODOpackage_names_in_freebsd"
-        elif os_info.is_solaris:
-            pack_name = "TODOpackage_names_in_solaris"
+        if tools.os_info.is_linux:
+            if tools.os_info.with_apt:
+                installer = tools.SystemPackageTool()
+                installer.install("libegl1-mesa-dev")
+                installer.install("libgtk2.0-dev")
+                installer.install("libpoppler-glib-dev")
+            else:
+                self.output.warn("Could not determine Linux package manager, skipping system requirements installation.")
 
-        if pack_name:
-            installer = SystemPackageTool()
-            installer.install(
-                pack_name)  # Install the package, will update the package database if pack_name isn't already installed
+    def config_options(self):
+        if self.settings.os == 'Windows':
+            del self.options.fPIC
 
     def _configure_cmake(self):
-        cmake = CMake(self)
-        cmake.definitions['WIN32_USE_MP'] = "ON"
-        cmake.definitions['BUILD_SHARED_LIBS'] = "ON"
-        cmake.definitions['BUILD_OSGEXAMPLES'] = 'OFF'
-        cmake.definitions['BUILD_DOCUMENTATION'] = 'OFF'
-        cmake.definitions['BUILD_OSGAPPLICATIONS'] = 'ON'
-        cmake.definitions['OSG_USE_QT'] = 'OFF'
-        cmake.definitions['CMAKE_CXX_FLAGS_RELEASE'] = '/MD /O2 /Ob2 /D NDEBUG /Zi /Oy- /wd4589 /wd4456'
-        cmake.definitions['CMAKE_SHARED_LINKER_FLAGS_RELEASE'] = '/DEBUG /OPT:REF /OPT:ICF /INCREMENTAL:NO'
-        cmake.definitions['CMAKE_EXE_LINKER_FLAGS_RELEASE'] = '/DEBUG /OPT:REF /OPT:ICF /INCREMENTAL:NO'
-        cmake.definitions['CMAKE_MODULE_LINKER_FLAGS_RELEASE'] = '/DEBUG /OPT:REF /OPT:ICF /INCREMENTAL:NO'
-        if self.options.pure_gl3:
-            cmake.definitions['OSG_GL3_AVAILABLE'] = 'ON'
-            cmake.definitions['OSG_GL1_AVAILABLE'] = 'OFF'
-            cmake.definitions['OSG_GL2_AVAILABLE'] = 'OFF'
-            cmake.definitions['OSG_GLES1_AVAILABLE'] = 'OFF'
-            cmake.definitions['OSG_GLES2_AVAILABLE'] = 'OFF'
-            cmake.definitions['OSG_GL_DISPLAYLISTS_AVAILABLE'] = 'OFF'
-            cmake.definitions['OSG_GL_FIXED_FUNCTION_AVAILABLE'] = 'OFF'
-            cmake.definitions['OSG_GL_MATRICES_AVAILABLE'] = 'OFF'
-            cmake.definitions['OSG_GL_VERTEX_ARRAY_FUNCS_AVAILABLE'] = 'OFF'
-            cmake.definitions['OSG_GL_VERTEX_FUNCS_AVAILABLE'] = 'OFF'
+        if not self._cmake:
+            self._cmake = CMake(self)
+            self._cmake.definitions["BUILD_OSG_APPLICATIONS"] = self.options.build_osg_applications
+            self._cmake.definitions["DYNAMIC_OPENSCENEGRAPH"] = self.options.shared
+            self._cmake.definitions["BUILD_OSG_PLUGINS_BY_DEFAULT"] = self.options.build_osg_plugins_by_default
+            self._cmake.definitions['BUILD_OSG_EXAMPLES'] = self.options.build_osg_examples
+            self._cmake.definitions["DYNAMIC_OPENTHREADS"] = self.options.dynamic_openthreads
 
-        with tools.environment_append({'OSG_3RDPARTY_DIR': self.deps_cpp_info["osgvisual"].rootpath.replace('\\', '/')}):
-            cmake.configure()
-        return cmake
+            if self.settings.compiler == "Visual Studio":
+                self._cmake.definitions['BUILD_WITH_STATIC_CRT'] = "MT" in str(self.settings.compiler.runtime)
+
+            self._cmake.configure()
+        return self._cmake
 
     def build(self):
         cmake = self._configure_cmake()
         cmake.build()
 
     def package(self):
+        self.copy(pattern="LICENSE", dst="licenses")
         cmake = self._configure_cmake()
         cmake.install()
-
-        # add OpenSceneGraph-Data folder
-        self.run("git clone https://github.com/openscenegraph/OpenSceneGraph-Data.git " +
-                 os.path.join(self.package_folder, "OpenSceneGraph-Data"))
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)
         self.env_info.OSG_ROOT = self.package_folder
-        self.env_info.OSG_FILE_PATH.append(os.path.join(self.package_folder, "OpenSceneGraph-Data"))
-        if self.settings.os != "Windows":
-            self.env_info.LD_LIBRARY_PATH.append(os.path.join(self.package_folder, "lib"))
+        if self.settings.os == "Linux":
+            self.cpp_info.system_libs.append("rt")
+        if not self.options.shared:
+            self.cpp_info.defines.append("OSG_LIBRARY_STATIC=1")
         self.env_info.PATH.append(os.path.join(self.package_folder, "bin"))
