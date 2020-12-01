@@ -1537,6 +1537,7 @@ void DatabasePager::requestNodeFile(const std::string& fileName, osg::NodePath& 
             databaseRequest->_frameNumberLastRequest = frameNumber;
             databaseRequest->_timestampLastRequest = timestamp;
             databaseRequest->_priorityLastRequest = priority;
+            databaseRequest->_frameIntervalToleranceLastRequest = _frameIntervalToleranceLastRequest;
             databaseRequest->_group = group;
             databaseRequest->_terrain = terrain;
             databaseRequest->_loadOptions = loadOptions;

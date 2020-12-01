@@ -4,7 +4,7 @@ import os
 
 class OpenscenegraphConan(ConanFile):
     name = "openscenegraph-ifad"
-    version = "3.6.3.3"
+    version = "3.6.3.4"
     description = "IFAD version of OpenSceneGraph. OpenSceneGraph is an open source high performance 3D graphics toolkit"
     topics = ("ifad", "conan", "openscenegraph", "graphics")
     url = "https://github.com/ifad-ts/OpenSceneGraph"
